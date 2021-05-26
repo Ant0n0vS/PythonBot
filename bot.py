@@ -4,7 +4,9 @@ import sqlite3
 import os
 from telebot import types
 
-bot = telebot.TeleBot('1780761205:AAEAujP5IDdP0wGhz9gNXUpSXhSJ-LymeXY')
+token = "1780761205:AAEAujP5IDdP0wGhz9gNXUpSXhSJ-LymeXY"
+
+bot = telebot.TeleBot(token)
 
 userSubgroup = "1"
 
@@ -87,6 +89,16 @@ def returnTeachersInfo():
     recordsTeachers = cursor.fetchall()
     return recordsTeachers
 
+def writeNotice(text):
+    f = open("info.txt", 'w', encoding = "utf-8")
+    f.write(text)
+    f.close
+
+def readNotice():
+    f = open("info.txt", 'r', encoding = "utf-8")
+    info = f.read()
+    return info
+
 def outputTeachers(recordsTeachers):
     output = ""
     for row in recordsTeachers:
@@ -110,7 +122,7 @@ def getSmallKeyboard():
 
 def getLargeKeyboard():
     keyboard = types.ReplyKeyboardMarkup(True,False)
-    keyboard.row("Today", "Tomorrow").row("All week", "Next week").row("Lessons time", "Teachers").row("Monday", "Tuesday","Wednesday").row("Thursday","Friday","Small keyboard")
+    keyboard.row("Today", "Tomorrow").row("All week", "Next week").row("Lessons time", "Teachers", "Session time").row("Monday", "Tuesday","Wednesday").row("Thursday","Friday","Small keyboard")
     return keyboard
 
 '''
@@ -134,7 +146,7 @@ def getSubgroupKeyboard():
 def send_welcome(message):
     userId = message.from_user.id
     name = message.from_user.first_name
-    bot.send_message(message.from_user.id, "Доброго времени суток, " + name + " " + str(userId) + "!" +
+    bot.send_message(message.from_user.id, "Доброго времени суток, " + name + "!" +
         "\n Список команд:" +
         "\n Tomorrow — расписание на завтра" + 
         "\n Today — расписание на сегодня" + 
@@ -152,7 +164,7 @@ def send_welcome(message):
 def send_welcome(message):
     userId = message.from_user.id
     name = message.from_user.first_name
-    bot.send_message(message.from_user.id, "Доброго времени суток, " + name + " " + str(userId) + "!\n" +
+    bot.send_message(message.from_user.id, "Доброго времени суток, " + name + "!\n" +
         "Выберите свою подгруппу:", reply_markup = getSubgroupKeyboard())
 
 @bot.message_handler(content_types=['text'])
@@ -160,6 +172,8 @@ def get_text_messages(message):
     global userDepartment
     global userStage
     global userSubgroup
+    global noticeText
+    
     daysDict = {"Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5}
 
     if message.text.lower() == "привет" or message.text.lower() == "hi" or message.text.lower() == "hello":
@@ -201,6 +215,16 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, outputLessonsTimes(returnLessonsTimes()))
     elif message.text == "Teachers":
         bot.send_message(message.from_user.id, outputTeachers(returnTeachersInfo()))
+    elif message.text == "Session time":
+        photo = open("session.jpg", 'rb')
+        bot.send_photo(message.from_user.id, photo)
+    elif message.text == "Notice":
+        info = readNotice()
+        bot.send_message(message.from_user.id, info)
+    elif message.text[:8] == "Add info":
+        noticeText = message.text[9:]
+        writeNotice(noticeText)
+        bot.send_message(message.from_user.id, "Инфу принял!")
     else:
         bot.send_message(message.from_user.id, "Не понял!")
     
