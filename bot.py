@@ -48,12 +48,12 @@ def returnDayliLessonsList(dayOfWeek, weekParity):
         else:
             mainOutput = "БОТ ПРИНЯЛ ИСЛАМ!\n"
         if recordsTimetable == []:
-            mainOutput += "Выходной💤"
+            mainOutput += "Выходной💤\n"
         for row in recordsTimetable:
             if (row[5] == int(weekParity) or row[5] == 0):
                 i = row[1] - 1
                 time = str(recordsTimes[i][1]).zfill(2) + ":" + str(recordsTimes[i][2]).zfill(2) + " — " + str(recordsTimes[i][3]).zfill(2) + ":" + str(recordsTimes[i][4]).zfill(2)
-                outputForm = str(row[1]) + ". " + time + "\n" + row[2] + "(" + row[3] + "), " + row[4]
+                outputForm = str(row[1]) + ") " + time + "\n" + row[2] + "(" + row[3] + "), " + row[4]
                 mainOutput += outputForm + "\n"    
         cursor.close()
 
